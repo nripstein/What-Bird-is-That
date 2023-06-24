@@ -13,3 +13,7 @@ Computer vision website which identifies the species of birds by user-uploaded p
 1. introduce autocrop option using YOLOv5 object detection
 
 Add options for secondary models (like b0-b4)
+
+# ideas for better models:
+1. try data augmentation using ImageDataGenerator
+2. get equal number of images for each class using data augmentation
