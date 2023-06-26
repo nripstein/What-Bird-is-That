@@ -9,6 +9,7 @@ Computer vision website which identifies the species of birds by user-uploaded p
 - [X] Deploy streamlit app
 - [ ] Add video demonstration to repo
 - [ ] Add accuracy metric to app
+- [ ] Add github logo with link to my github to app
 
 # future plans
 - [ ] make script for scraping other types of birds so it can classify more (no white swan or flamingo included in dataset)
