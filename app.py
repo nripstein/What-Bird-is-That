@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 
-# streamlit run app.py
+# streamlit run app.py  # run this for local running
 
 # Hide hamburger menu and Streamlit watermark
 hide_streamlit_style = """
@@ -28,10 +28,10 @@ def get_class_labels(labels_file: str = "class_labels.txt") -> list[str]:
     return labels
 
 
-@st.cache_resource
+@st.cache_resource(show_spinner=False)
 def load_model(model_name: str = "bird_model_b4_used_b2_imsize.h5") -> tf.keras.Model:
-    model = tf.keras.models.load_model(f"models/{model_name}")
-    return model
+    tf_model = tf.keras.models.load_model(f"models/{model_name}")
+    return tf_model
 
 
 @st.cache_resource
@@ -130,19 +130,28 @@ file = st.file_uploader(label="Upload an image of a bird.",
                         type=["jpg", "jpeg", "png"])
 
 if not file:
-    pred_button, image = None, None  # set them to None because they won't exist
+    image = None  # set to None because it doesn't exist yet
+    pred_button = st.button("Predict", disabled=True, help="Upload an image to make a prediction")
     st.stop()
 
 else:
     image = file.read()
-    st.image(image, use_column_width=True)
+    # Center the image using st.columns
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        # Apply CSS styling to center the image
+        st.image(image, use_column_width="auto", width="50%")
     pred_button = st.button("Predict")
 
 
 # Check if the prediction button is clicked
 if pred_button:
     # Perform image classification and obtain prediction, confidence, and DataFrame
-    df = classify_image(image, load_model())
+    with st.spinner("Loading Machine Learning Model..."):
+        model = load_model()
+
+    with st.spinner("Classifying Image..."):
+        df = classify_image(image, model)
 
     # Display the prediction and confidence
     st.success(f'Prediction: {df.iloc[0]["Top 3 Predictions"]}\nConfidence: {df.iloc[0]["Probability"]:.2f}%')
