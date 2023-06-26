@@ -194,4 +194,3 @@ if pred_button:
     )
 
     st.plotly_chart(fig)
-
