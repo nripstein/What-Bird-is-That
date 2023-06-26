@@ -2,6 +2,7 @@ import streamlit as st
 import tensorflow as tf
 import pandas as pd
 import plotly.graph_objects as go
+import json
 
 
 # streamlit run app.py  # run this for local running
@@ -18,19 +19,24 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # ---------------------------------- Functions ----------------------------------
 @st.cache_data
-def get_class_labels(labels_file: str = "class_labels.txt") -> list[str]:
-    """Load the class labels from the text file"""
-    labels = []
-    with open(labels_file, "r") as txt_file:
-        for line in txt_file:
-            label = line.strip()  # Remove leading/trailing whitespaces
-            labels.append(label)
-    return labels
+def load_label_to_scientific(json_file_name: str = "common_to_scientific.json") -> dict[str, str]:
+    """
+    Loads a JSON file containing the label to scientific name mapping and returns it as a dictionary.
+
+    Args:
+        json_file_name (str): The path to the JSON file.
+
+    Returns:
+        dict: The label to scientific name mapping as a dictionary.
+    """
+    with open(f"models and data/{json_file_name}", "r") as json_file:
+        label_to_scientific_dict = json.load(json_file)
+    return label_to_scientific_dict
 
 
 @st.cache_resource(show_spinner=False)
 def load_model(model_name: str = "bird_model_b4_used_b2_imsize.h5") -> tf.keras.Model:
-    tf_model = tf.keras.models.load_model(f"models/{model_name}")
+    tf_model = tf.keras.models.load_model(f"models and data/{model_name}")
     return tf_model
 
 
@@ -60,8 +66,8 @@ def classify_image(img: bytes, model: tf.keras.Model) -> pd.DataFrame:
     containing the top 3 predictions and their probabilities.
 
     Args:
-        img (tf.Tensor): The image to be classified.
-        model: The pre-trained model to use for prediction.
+        img (bytes): The image to be classified.
+        model (tf.keras.Model): The pre-trained model to use for prediction.
 
     Returns:
         A pandas DataFrame containing the top 3 predictions and their probabilities,
@@ -84,7 +90,7 @@ def classify_image(img: bytes, model: tf.keras.Model) -> pd.DataFrame:
 
     # Create a DataFrame to store the top 3 predictions and their probabilities
     prediction_df = pd.DataFrame({
-        "Top 3 Predictions": labels,
+        "Common Name": labels,
         "Probability": values,
     })
 
@@ -92,7 +98,14 @@ def classify_image(img: bytes, model: tf.keras.Model) -> pd.DataFrame:
     return prediction_df.sort_values("Probability", ascending=False)
 
 
-class_labels = get_class_labels()
+def add_wikipedia(input_df: pd.DataFrame) -> pd.DataFrame:
+    input_df["Scientific Name"] = input_df["Common Name"].map(labels_to_sci)
+    input_df["Wikipedia Link"] = input_df["Scientific Name"].apply(lambda species_name: 'https://en.wikipedia.org/wiki/' + species_name.lower().replace(' ', '_'))
+    return input_df
+
+
+labels_to_sci = load_label_to_scientific()
+class_labels = sorted(list(labels_to_sci.keys()))
 # ---------------------------------- SideBar ----------------------------------
 
 st.sidebar.title('What is "What Bird is That?"')
@@ -131,9 +144,8 @@ file = st.file_uploader(label="Upload an image of a bird.",
 
 if not file:
     image = None  # set to None because it doesn't exist yet
-    pred_button = st.button("Predict", disabled=True, help="Upload an image to make a prediction")
+    pred_button = st.button("Identify Species", disabled=True, help="Upload an image to make a prediction")
     st.stop()
-
 else:
     image = file.read()
     # Center the image using st.columns
@@ -141,10 +153,8 @@ else:
     with col2:
         # Apply CSS styling to center the image
         st.image(image, use_column_width="auto", width="50%")
-    pred_button = st.button("Predict")
+    pred_button = st.button("Identify Species")
 
-
-# Check if the prediction button is clicked
 if pred_button:
     # Perform image classification and obtain prediction, confidence, and DataFrame
     with st.spinner("Loading Machine Learning Model..."):
@@ -154,12 +164,20 @@ if pred_button:
         df = classify_image(image, model)
 
     # Display the prediction and confidence
-    st.success(f'Prediction: {df.iloc[0]["Top 3 Predictions"]}\nConfidence: {df.iloc[0]["Probability"]:.2f}%')
+    st.success(f'Predicted Species: **{df.iloc[0]["Common Name"].title()}** Confidence: {df.iloc[0]["Probability"]:.2f}%')  # add something with scientific name here
+
+    df = add_wikipedia(df)
+
+    y_axis_wiki_namelist = []
+    for index, row in df.iterrows():
+        label = row["Common Name"]
+        current_link = row["Wikipedia Link"]
+        y_axis_wiki_namelist.append(f'<a href="{current_link}" target="_blank">{label}</a>')
 
     fig = go.Figure(data=[
         go.Bar(
             x=df["Probability"],
-            y=df["Top 3 Predictions"],  # [f'<a href="https://en.wikipedia.org/wiki/Expected_value" target="_blank">{label}</a>' for label in df["Top 3 Predictions"]] # for making it clickable links
+            y=y_axis_wiki_namelist,
             orientation="h",
             text=df["Probability"].apply(lambda x: f"{x:.2f}%"),
             textposition="auto",
@@ -167,7 +185,7 @@ if pred_button:
     ])
 
     fig.update_layout(
-        title="Top 3 Predictions",
+        title="Common Name",
         xaxis_title="Probability",
         yaxis_title="Species",
         width=600,
