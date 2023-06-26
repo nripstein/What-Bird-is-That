@@ -14,6 +14,9 @@ Computer vision website which identifies the species of birds by user-uploaded p
 
 # future plans
 - [ ] make script for scraping other types of birds so it can classify more (no white swan or flamingo included in dataset)
+- [ ] Make links to the wikipedia page pf the top 3 predicted classes
+- [ ] get some sort of nlp model to read the wikipedia page of the most likely one and say some fun facts or something along those lines
+- [ ] 
 
 # version 2:
 1. introduce autocrop option using YOLOv5 object detection
