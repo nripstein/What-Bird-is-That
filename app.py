@@ -127,8 +127,6 @@ st.sidebar.markdown(body="""
 <th style="border:None"><a href="https://www.linkedin.com/in/noah-ripstein/" target="blank">
 <img align="center" src="https://bit.ly/3wCl82U" alt="linkedin_logo" height="40" width="40" /></a></th>
 
-<th style="border:None"><a href="https://github.com/nripstein" target="blank"><img align="center" src="https://github.com/nripstein/What-Bird-is-That/blob/main/app_images/github_logo.png" alt="github_logo1tmp" height="40" width="64" /></a></th>
-
 """, unsafe_allow_html=True)
 
 # st.sidebar.image(open("app_images/tmp.png", "rb").read(), caption="GitHub Logo", width=64)
@@ -181,6 +179,7 @@ if pred_button:
             orientation="h",
             text=df["Probability"].apply(lambda x: f"{x:.2f}%"),
             textposition="auto",
+            marker=dict(color="plum"),  # need to decide on a good colour
         )
     ])
 
@@ -194,4 +193,3 @@ if pred_button:
     )
 
     st.plotly_chart(fig)
-
