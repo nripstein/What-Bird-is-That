@@ -3,6 +3,7 @@ import tensorflow as tf
 import pandas as pd
 import plotly.graph_objects as go
 
+
 # streamlit run app.py
 
 # Hide hamburger menu and Streamlit watermark
@@ -17,21 +18,18 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # ---------------------------------- Functions ----------------------------------
 @st.cache_data
-def get_class_labels(labels_file: str = "class_labels.txt"):
+def get_class_labels(labels_file: str = "class_labels.txt") -> list[str]:
     """Load the class labels from the text file"""
     labels = []
-    with open(labels_file, "r") as file:
-        for line in file:
+    with open(labels_file, "r") as txt_file:
+        for line in txt_file:
             label = line.strip()  # Remove leading/trailing whitespaces
             labels.append(label)
     return labels
 
 
-class_labels = get_class_labels()
-
-
 @st.cache_resource
-def load_model(model_name: str = "bird_model_b4_used_b2_imsize.h5"):
+def load_model(model_name: str = "bird_model_b4_used_b2_imsize.h5") -> tf.keras.Model:
     model = tf.keras.models.load_model(f"models/{model_name}")
     return model
 
@@ -77,24 +75,24 @@ def classify_image(img: bytes, model: tf.keras.Model) -> pd.DataFrame:
     # Make predictions using the model
     pred_probs = model.predict(img)
 
-    # Get the indices of the top 5 predicted classes
-    top_3_i = sorted(pred_probs.argsort()[0][-3:][::-1])
+    # Get the indices of the top 3 predicted classes
+    top_3_indices = sorted(pred_probs.argsort()[0][-3:][::-1])
 
     # Compute the probabilities for the top 3 predictions
-    values = pred_probs[0][top_3_i] * 100
-    labels = [class_labels[i] for i in top_3_i]
+    values = pred_probs[0][top_3_indices] * 100
+    labels = [class_labels[i] for i in top_3_indices]
 
     # Create a DataFrame to store the top 3 predictions and their probabilities
     prediction_df = pd.DataFrame({
         "Top 3 Predictions": labels,
         "Probability": values,
-        "color": ['#EC5953', '#EC5953', '#EC5953']
     })
 
     # Sort the DataFrame by Probability
     return prediction_df.sort_values("Probability", ascending=False)
 
 
+class_labels = get_class_labels()
 # ---------------------------------- SideBar ----------------------------------
 
 st.sidebar.title('What is "What Bird is That?"')
@@ -127,12 +125,11 @@ st.sidebar.markdown(body="""
 st.title("What Bird is That? 🦜 📸")
 st.header("Identify what kind of bird you snapped a photo of!")
 st.write("To learn more about this website and the underlying machine learning model, "
-         "[**visit GitHub repository**](https://github.com/nripstein/What-Bird-is-That)")
+         "[**visit the GitHub repository**](https://github.com/nripstein/What-Bird-is-That)")
 file = st.file_uploader(label="Upload an image of a bird.",
                         type=["jpg", "jpeg", "png"])
 
 if not file:
-    st.warning("Please upload an image")
     pred_button, image = None, None  # set them to None because they won't exist
     st.stop()
 
@@ -153,7 +150,7 @@ if pred_button:
     fig = go.Figure(data=[
         go.Bar(
             x=df["Probability"],
-            y=df["Top 3 Predictions"],
+            y=df["Top 3 Predictions"],  # [f'<a href="https://en.wikipedia.org/wiki/Expected_value" target="_blank">{label}</a>' for label in df["Top 3 Predictions"]] # for making it clickable links
             orientation="h",
             text=df["Probability"].apply(lambda x: f"{x:.2f}%"),
             textposition="auto",
