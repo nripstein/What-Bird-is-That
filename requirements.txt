@@ -1,0 +1,4 @@
+pandas==2.0.2
+plotly==5.15.0
+streamlit==1.23.1
+tensorflow==2.12.0
