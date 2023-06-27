@@ -1,6 +1,6 @@
 # What Bird is That? 🦜 📸
 Computer vision website which identifies the species of birds in user-uploaded photos
-# [Try the app (currently in beta testing)](https://what-bird-is-that.streamlit.app/)
+# [Try the website](https://what-bird-is-that.streamlit.app/)
 
 # Sample Usage
 
