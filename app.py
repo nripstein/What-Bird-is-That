@@ -3,6 +3,10 @@ import tensorflow as tf
 import pandas as pd
 import plotly.graph_objects as go
 import json
+import wikipedia
+from PIL import Image
+import io
+import base64
 
 
 # streamlit run app.py  # run this for local running
@@ -38,6 +42,18 @@ def load_label_to_scientific(json_file_name: str = "common_to_scientific.json") 
 def load_model(model_name: str = "bird_model_b4_used_b2_imsize.h5") -> tf.keras.Model:
     tf_model = tf.keras.models.load_model(f"models and data/{model_name}")
     return tf_model
+
+
+def add_bird_summary():
+    wiki_description = get_bird_description(top_prediction_row["Scientific Name"])
+    other_image = Image.open(f"models and data/sample photos/{top_prediction_row['Common Name']}.jpg")
+
+    image_width = 300
+    image_bytes = io.BytesIO()
+    other_image.save(image_bytes, format='JPEG')
+    image_html = f'<img src="data:image/jpeg;base64,{base64.b64encode(image_bytes.getvalue()).decode()}" alt="Bird Image" style="float: right; width: {image_width}px; margin-left: 20px;">'
+
+    st.markdown(f'{image_html} {wiki_description}', unsafe_allow_html=True)
 
 
 @st.cache_resource
@@ -98,6 +114,11 @@ def classify_image(img: bytes, model: tf.keras.Model) -> pd.DataFrame:
     return prediction_df.sort_values("Probability", ascending=False)
 
 
+@st.cache_data
+def get_bird_description(scientific_name):
+    return wikipedia.page(scientific_name).summary
+
+
 def add_wikipedia(input_df: pd.DataFrame) -> pd.DataFrame:
     input_df["Scientific Name"] = input_df["Common Name"].map(labels_to_sci)
     input_df["Wikipedia Link"] = input_df["Scientific Name"].apply(lambda species_name: 'https://en.wikipedia.org/wiki/' + species_name.lower().replace(' ', '_'))
@@ -149,22 +170,24 @@ else:
     # Center the image using st.columns
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        # Apply CSS styling to center the image
+        # Display image in center column
         st.image(image, use_column_width="auto", width="50%")
     pred_button = st.button("Identify Species")
 
 if pred_button:
     # Perform image classification and obtain prediction, confidence, and DataFrame
-    with st.spinner("Loading Machine Learning Model..."):
+    with st.spinner("Loading Image Classification Model..."):
         model = load_model()
 
     with st.spinner("Classifying Image..."):
         df = classify_image(image, model)
 
-    # Display the prediction and confidence
-    st.success(f'Predicted Species: **{df.iloc[0]["Common Name"].title()}** Confidence: {df.iloc[0]["Probability"]:.2f}%')  # add something with scientific name here
-
     df = add_wikipedia(df)
+    top_prediction_row = df.iloc[0]
+    # Display the prediction and confidence
+    st.success(f'Predicted Species: **{top_prediction_row["Common Name"].title()}** Confidence: {top_prediction_row["Probability"]:.2f}%')  # add something with scientific name here
+
+
 
     y_axis_wiki_namelist = []
     for index, row in df.iterrows():
@@ -193,3 +216,23 @@ if pred_button:
     )
 
     st.plotly_chart(fig)
+
+    add_bird_summary()
+
+
+    # this is way too slow, so II'm going to have to accept the whole long thing, or pay for inference using GPT3 or something
+    # from transformers import pipeline
+    # @st.cache_resource(show_spinner=False)
+    # def load_pipeline():
+    #     return pipeline("summarization", model="facebook/bart-large-cnn")
+    #
+    #
+    # @st.cache_data(show_spinner=False)
+    # def summarize_with_pipeline(_summarizer, to_summarize: str) -> str:
+    #     return _summarizer(to_summarize, max_length=130, min_length=30, do_sample=False)[0]["summary_text"]
+    # with st.spinner("Loading Text Summarization Model..."):
+    #     summarization_model = load_pipeline()
+    #
+    # with st.spinner(f"Finding and Summarizing Some Information About {df.iloc[0]['Common Name'].title()}..."):
+    #     summarized_description = summarize_with_pipeline(summarization_model, wiki_description)
+    # st.markdown(summarized_description)
