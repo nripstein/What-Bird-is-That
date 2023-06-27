@@ -44,14 +44,27 @@ def load_model(model_name: str = "bird_model_b4_used_b2_imsize.h5") -> tf.keras.
     return tf_model
 
 
-def add_bird_summary():
-    wiki_description = get_bird_description(top_prediction_row["Scientific Name"])
-    other_image = Image.open(f"models and data/sample photos/{top_prediction_row['Common Name']}.jpg")
+def display_bird_summary(best_guess_row: pd.Series) -> None:
+    """
+    Displays the bird summary, including the Wikipedia description and an image.
+
+    Retrieves the Wikipedia description of the bird based on its scientific name,
+    and displays it alongside an image of the bird.
+
+    The image is wrapped in text, and is displayed on the right side.
+
+    Args:
+    best_guess_row (pd.Series): A pandas Series representing the best guess for the bird species.
+                                It should contain the columns "Common Name" and "Scientific Name".
+    """
+    wiki_description = get_bird_description(best_guess_row["Scientific Name"])
+    other_image = Image.open(f"models and data/sample photos/{best_guess_row['Common Name']}.jpg")
 
     image_width = 300
     image_bytes = io.BytesIO()
-    other_image.save(image_bytes, format='JPEG')
-    image_html = f'<img src="data:image/jpeg;base64,{base64.b64encode(image_bytes.getvalue()).decode()}" alt="Bird Image" style="float: right; width: {image_width}px; margin-left: 20px;">'
+    other_image.save(image_bytes, format="JPEG")
+    image_html = f'<img src="data:image/jpeg;base64,{base64.b64encode(image_bytes.getvalue()).decode()}" ' \
+                 f'alt="Bird Image" style="float: right; width: {image_width}px; margin-left: 20px;">'
 
     st.markdown(f'{image_html} {wiki_description}', unsafe_allow_html=True)
 
@@ -135,12 +148,13 @@ st.sidebar.write('''
 
 It can accurately identify over 500 different types of birds!
 
-It was developed by retraining and fine-tuning a pre-trained Image Classification Model on close to 100,000 photos of birds.
+It was developed using close to 100,000 photos of birds using for transfer learning and fine-tuning of a pre-trained Image Classification Model.
 
-**Accuracy :** **`ENTER FINAL ACCURACY HERE`**
 
-**Model :** **`EfficientNetB4`**
 ''')
+# **Accuracy :** **`ENTER FINAL ACCURACY HERE`**
+#
+# **Model :** **`EfficientNetB4`**
 
 st.sidebar.markdown("Created by **Noah Ripstein**")
 st.sidebar.markdown(body="""
@@ -187,8 +201,7 @@ if pred_button:
     # Display the prediction and confidence
     st.success(f'Predicted Species: **{top_prediction_row["Common Name"].title()}** Confidence: {top_prediction_row["Probability"]:.2f}%')  # add something with scientific name here
 
-
-
+    # create list for y-axis of plot which displays the name of the bird and links to the wikipedia page
     y_axis_wiki_namelist = []
     for index, row in df.iterrows():
         label = row["Common Name"]
@@ -217,7 +230,7 @@ if pred_button:
 
     st.plotly_chart(fig)
 
-    add_bird_summary()
+    display_bird_summary(best_guess_row=top_prediction_row)
 
 
     # this is way too slow, so II'm going to have to accept the whole long thing, or pay for inference using GPT3 or something
