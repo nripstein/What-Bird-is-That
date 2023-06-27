@@ -16,10 +16,10 @@ https://github.com/nripstein/What-Bird-is-That/assets/98430636/d81f35ee-5861-441
 
 # This project is in early stages, and changes are still activley being made
 
-# todo (for initial "release"):
+# todo:
 - [X] Deploy streamlit app
 - [X] Make links to the wikipedia page of the top 3 predicted classes
-- [ ] Finish training model
+- [ ] Finish training correct model
 - [ ] Add model training notebook to repo
 - [ ] Add video demonstration to repo
 - [ ] Add accuracy metric to app
@@ -28,6 +28,7 @@ https://github.com/nripstein/What-Bird-is-That/assets/98430636/d81f35ee-5861-441
 # future plans
 - [ ] make script for scraping other types of birds so it can classify more (no white swan or flamingo included in dataset)
 - [ ] Ideally scrape habitat location images from wikipedia (seems very hard after a few hours of trying because there's no consistent naming convention)
+- [ ] if length of wikipedia summary section is too short, use the description [Wood Duck is good example of very short summary page and longer description](https://en.wikipedia.org/wiki/Wood_duck)
 
 
 # version 2:
