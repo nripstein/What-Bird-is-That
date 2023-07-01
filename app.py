@@ -11,6 +11,8 @@ import base64
 
 # streamlit run app.py  # run this for local running
 
+st.set_page_config(page_title="What Bird is That?")  # Set tab title
+
 # Hide hamburger menu and Streamlit watermark
 hide_streamlit_style = """
             <style>
@@ -58,15 +60,16 @@ def display_bird_summary(best_guess_row: pd.Series) -> None:
                                 It should contain the columns "Common Name" and "Scientific Name".
     """
     wiki_description = get_bird_description(best_guess_row["Scientific Name"])
-    other_image = Image.open(f"models and data/sample photos/{best_guess_row['Common Name']}.jpg")
+    if wiki_description is not None:  # only is None if can't find species, so we shouldn't do anything
+        other_image = Image.open(f"models and data/sample photos/{best_guess_row['Common Name']}.jpg")
 
-    image_width = 300
-    image_bytes = io.BytesIO()
-    other_image.save(image_bytes, format="JPEG")
-    image_html = f'<img src="data:image/jpeg;base64,{base64.b64encode(image_bytes.getvalue()).decode()}" ' \
-                 f'alt="Bird Image" style="float: right; width: {image_width}px; margin-left: 20px;">'
+        image_width = 300
+        image_bytes = io.BytesIO()
+        other_image.save(image_bytes, format="JPEG")
+        image_html = f'<img src="data:image/jpeg;base64,{base64.b64encode(image_bytes.getvalue()).decode()}" ' \
+                     f'alt="Bird Image" style="float: right; width: {image_width}px; margin-left: 20px;">'
 
-    st.markdown(f'{image_html} {wiki_description}', unsafe_allow_html=True)
+        st.markdown(f'{image_html} {wiki_description}', unsafe_allow_html=True)
 
 
 @st.cache_resource
@@ -129,7 +132,10 @@ def classify_image(img: bytes, model: tf.keras.Model) -> pd.DataFrame:
 
 @st.cache_data
 def get_bird_description(scientific_name):
-    return wikipedia.page(scientific_name).summary
+    try:
+        return wikipedia.page(scientific_name).summary
+    except wikipedia.exceptions.PageError:
+        return None
 
 
 def add_wikipedia(input_df: pd.DataFrame) -> pd.DataFrame:
