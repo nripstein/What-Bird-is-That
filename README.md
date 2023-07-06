@@ -45,6 +45,12 @@ This project aims to classify bird species using deep learning techniques. By le
 
 To provide a user-friendly interface for bird classification, I developed a Streamlit web application. Users can easily upload their bird photos and obtain predictions from the trained Bird Classifier model.  The website presents a bar plot of the probability of the top 3 species (with their labels serving as Wikipedia links). After identifying the top prediction the website presents a photo of the bird from the test data set, and provides details about the recognized species (from the Wikipedia API).
 
+### Example of Post-Classification Description
+<div align="center">
+  <img src="https://github.com/nripstein/What-Bird-is-That/assets/98430636/eadecb26-e345-472f-87e3-975d8f7bae49" alt="classified bird demo" style="width: 75%;">
+</div>
+
+
 # Data
 The bird [dataset](https://www.kaggle.com/datasets/gpiosenka/100-bird-species) utilized in this project comprises a wide range of bird species, offering a comprehensive coverage of avian biodiversity. It includes 525 different species, enabling the model to accurately identify and classify a diverse range of birds.
 
