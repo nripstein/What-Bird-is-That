@@ -1,6 +1,7 @@
 
-# What Bird is That? 🦜 📸
-A computer vision website which identifies the species of birds in user-uploaded photos. [Try the website at this link](https://what-bird-is-that.streamlit.app/).
+# What Bird is That? 🦜 📸  
+# [Try the website at this link](https://what-bird-is-that.streamlit.app/) 
+
 
 # Sample Usage
 
@@ -52,7 +53,7 @@ To provide a user-friendly interface for bird classification, I developed a Stre
 
 
 # Data
-The bird [dataset](https://www.kaggle.com/datasets/gpiosenka/100-bird-species) utilized in this project comprises a wide range of bird species, offering a comprehensive coverage of avian biodiversity. It includes 525 different species, enabling the model to accurately identify and classify a diverse range of birds.
+The bird [dataset](https://www.kaggle.com/datasets/gpiosenka/100-bird-species) used in this project comprises a wide range of bird species, offering a comprehensive coverage of avian biodiversity. It includes 525 different species, enabling the model to accurately identify and classify a diverse range of birds.
 
 ### Sample images from data set
 
