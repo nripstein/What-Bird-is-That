@@ -8,7 +8,10 @@
 https://github.com/nripstein/What-Bird-is-That/assets/98430636/d81f35ee-5861-441e-92ea-70b1de88bbda
 
 # Summary
-This project aims to classify bird species using deep learning techniques. By leveraging transfer learning and fine-tuning, the Bird Classifier feature extraction and fine tuning of the [EfficientNetB4](https://arxiv.org/pdf/1905.11946.pdf) model, pre-trained on the [ImageNet dataset](https://www.image-net.org/), to accurately identify and provide information about various bird species.
+This project aims to classify bird species using deep learning techniques. It can identify over 500 species of bird with 97+% accuracy.
+                The Bird Classifier leverages feature extraction and fine-tuning of the <a href="https://arxiv.org/pdf/1905.11946.pdf">EfficientNetB4</a> model, 
+                pre-trained on the <a href="https://www.image-net.org/">ImageNet dataset</a>, to accurately identify and provide information about various bird species.
+              </p>
 
 # Deep learning model design
 
