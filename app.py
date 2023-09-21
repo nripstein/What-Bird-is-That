@@ -177,7 +177,7 @@ st.sidebar.markdown(body="""
 st.title("What Bird is That? 🦜 📸")
 st.header("Identify what kind of bird you snapped a photo of!")
 st.write("To learn more about this website and the underlying machine learning model, "
-         "[**read the writeup.**](https://www.noahripstein.com/project-1.html)")
+         "[**read the writeup.**](https://www.noahripstein.com/bird.html)")
 file = st.file_uploader(label="Upload an image of a bird.",
                         type=["jpg", "jpeg", "png"])
 
