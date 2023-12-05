@@ -59,6 +59,7 @@ def display_bird_summary(best_guess_row: pd.Series) -> None:
     best_guess_row (pd.Series): A pandas Series representing the best guess for the bird species.
                                 It should contain the columns "Common Name" and "Scientific Name".
     """
+
     wiki_description = get_bird_description(best_guess_row["Scientific Name"])
     if wiki_description is not None:  # only is None if can't find species, so we shouldn't do anything
         other_image = Image.open(f"models and data/sample photos/{best_guess_row['Common Name']}.jpg")
@@ -71,6 +72,7 @@ def display_bird_summary(best_guess_row: pd.Series) -> None:
 
         st.markdown(f'{image_html} {wiki_description}', unsafe_allow_html=True)
 
+        st.info(f'Read more about the [{best_guess_row["Common Name"].title()} on Wikipedia]({best_guess_row["Wikipedia Link"]})')
 
 @st.cache_resource
 def prep_image(img: bytes, shape: int = 260, scale: bool = False) -> tf.Tensor:
@@ -237,21 +239,3 @@ if pred_button:
     st.plotly_chart(fig)
 
     display_bird_summary(best_guess_row=top_prediction_row)
-
-
-    # this is way too slow, so II'm going to have to accept the whole long thing, or pay for inference using GPT3 or something
-    # from transformers import pipeline
-    # @st.cache_resource(show_spinner=False)
-    # def load_pipeline():
-    #     return pipeline("summarization", model="facebook/bart-large-cnn")
-    #
-    #
-    # @st.cache_data(show_spinner=False)
-    # def summarize_with_pipeline(_summarizer, to_summarize: str) -> str:
-    #     return _summarizer(to_summarize, max_length=130, min_length=30, do_sample=False)[0]["summary_text"]
-    # with st.spinner("Loading Text Summarization Model..."):
-    #     summarization_model = load_pipeline()
-    #
-    # with st.spinner(f"Finding and Summarizing Some Information About {df.iloc[0]['Common Name'].title()}..."):
-    #     summarized_description = summarize_with_pipeline(summarization_model, wiki_description)
-    # st.markdown(summarized_description)
